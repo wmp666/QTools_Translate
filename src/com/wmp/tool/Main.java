@@ -1,4 +1,4 @@
-package tool;
+package com.wmp.tool;
 
 import com.wmp.develop.tool.QToolUnit;
 import com.wmp.develop.tool.apptools.GetPath;
@@ -22,6 +22,11 @@ public class Main extends QToolUnit {
     @Override
     protected Icon setIcon() {
         return null;
+    }
+
+    @Override
+    protected String setVersion() {
+        return "1.0";
     }
 
     private static final String infoRegular = "源语言：%s 目标语言：%s 其他：%s";

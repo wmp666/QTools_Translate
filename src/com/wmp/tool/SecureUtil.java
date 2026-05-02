@@ -1,4 +1,4 @@
-package tool;
+package com.wmp.tool;
 
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;

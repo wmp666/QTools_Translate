@@ -1,4 +1,4 @@
-package tool;
+package com.wmp.tool;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;

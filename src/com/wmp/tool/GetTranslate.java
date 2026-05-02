@@ -1,4 +1,4 @@
-package tool;
+package com.wmp.tool;
 
 import java.util.Arrays;
 import java.util.List;
