@@ -8,6 +8,8 @@ import org.tinylog.Logger;
 import javax.swing.*;
 import java.awt.*;
 import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.util.List;
@@ -26,7 +28,134 @@ public class Main extends QToolUnit {
 
     @Override
     protected String setVersion() {
-        return "1.0";
+        return "1.1";
+    }
+
+    @Override
+    public void showSetsDialog() {
+        JDialog dialog = new JDialog();
+        dialog.setTitle("设置");
+
+        try {
+            File file = new File(GetPath.getAppPath(GetPath.SOURCE_FILE_PATH), "inf/translate.inf");
+
+            if (!file.exists()) {
+                file.getParentFile().mkdirs();
+                file.createNewFile();
+            }
+
+            List<String> api = Files.readAllLines(file.toPath(), StandardCharsets.UTF_8);
+            String apikey = api.size() > 0 ? api.get(0) : "";
+            String appId = api.size() > 1 ? api.get(1) : "";
+
+            dialog.setLayout(new BorderLayout(10, 10));
+            dialog.setAlwaysOnTop(true);
+
+            JPanel mainPanel = new JPanel(new BorderLayout(10, 10));
+            mainPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+
+            JPanel inputPanel = new JPanel(new GridBagLayout());
+            GridBagConstraints gbc = new GridBagConstraints();
+            gbc.gridx = 0;
+            gbc.gridy = 0;
+            gbc.anchor = GridBagConstraints.WEST;
+            gbc.insets = new Insets(5, 5, 5, 5);
+
+            JLabel apikeyLabel = new JLabel("API Key:");
+            inputPanel.add(apikeyLabel, gbc);
+
+            JTextField apikeyField = new JTextField(apikey, 30);
+            gbc.gridx = 1;
+            gbc.fill = GridBagConstraints.HORIZONTAL;
+            gbc.weightx = 1.0;
+            inputPanel.add(apikeyField, gbc);
+
+            gbc.gridx = 0;
+            gbc.gridy = 1;
+            gbc.fill = GridBagConstraints.NONE;
+            gbc.weightx = 0;
+            JLabel appIdLabel = new JLabel("App ID:");
+            inputPanel.add(appIdLabel, gbc);
+
+            JTextField appIdField = new JTextField(appId, 30);
+            gbc.gridx = 1;
+            gbc.fill = GridBagConstraints.HORIZONTAL;
+            gbc.weightx = 1.0;
+            inputPanel.add(appIdField, gbc);
+
+            mainPanel.add(inputPanel, BorderLayout.CENTER);
+
+            JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 10, 5));
+            JButton saveButton = new JButton("保存");
+            JButton cancelButton = new JButton("取消");
+
+            final boolean[] hasChanges = {false};
+
+            apikeyField.getDocument().addDocumentListener(new javax.swing.event.DocumentListener() {
+                public void insertUpdate(javax.swing.event.DocumentEvent e) { hasChanges[0] = true; }
+                public void removeUpdate(javax.swing.event.DocumentEvent e) { hasChanges[0] = true; }
+                public void changedUpdate(javax.swing.event.DocumentEvent e) { hasChanges[0] = true; }
+            });
+
+            appIdField.getDocument().addDocumentListener(new javax.swing.event.DocumentListener() {
+                public void insertUpdate(javax.swing.event.DocumentEvent e) { hasChanges[0] = true; }
+                public void removeUpdate(javax.swing.event.DocumentEvent e) { hasChanges[0] = true; }
+                public void changedUpdate(javax.swing.event.DocumentEvent e) { hasChanges[0] = true; }
+            });
+
+            saveButton.addActionListener(e -> {
+                try {
+                    FileWriter writer = new FileWriter(file, false);
+                    writer.write(apikeyField.getText() + "\n");
+                    writer.write(appIdField.getText() + "\n");
+                    writer.close();
+
+                    GetTranslate.setAPIKey(apikeyField.getText(), appIdField.getText());
+
+                    JOptionPane.showMessageDialog(dialog, "保存成功！", "提示", JOptionPane.INFORMATION_MESSAGE);
+                    hasChanges[0] = false;
+                    dialog.dispose();
+                } catch (IOException ex) {
+                    JOptionPane.showMessageDialog(dialog, "保存失败：" + ex.getMessage(), "错误", JOptionPane.ERROR_MESSAGE);
+                }
+            });
+
+            cancelButton.addActionListener(e -> {
+                if (hasChanges[0]) {
+                    int result = JOptionPane.showConfirmDialog(dialog, "是否保存更改？", "确认",
+                            JOptionPane.YES_NO_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE);
+                    if (result == JOptionPane.YES_OPTION) {
+                        saveButton.doClick();
+                    } else if (result == JOptionPane.NO_OPTION) {
+                        dialog.dispose();
+                    }
+                } else {
+                    dialog.dispose();
+                }
+            });
+
+            buttonPanel.add(saveButton);
+            buttonPanel.add(cancelButton);
+            mainPanel.add(buttonPanel, BorderLayout.SOUTH);
+
+            dialog.add(mainPanel);
+
+            dialog.setDefaultCloseOperation(JDialog.DO_NOTHING_ON_CLOSE);
+            dialog.addWindowListener(new java.awt.event.WindowAdapter() {
+                @Override
+                public void windowClosing(java.awt.event.WindowEvent e) {
+                    cancelButton.doClick();
+                }
+            });
+
+            dialog.pack();
+            dialog.setLocationRelativeTo(null);
+            dialog.setVisible(true);
+
+        } catch (Exception e) {
+            Logger.error("打开设置失败：{}", e.getMessage());
+            JOptionPane.showMessageDialog(null, "打开设置失败：" + e.getMessage(), "错误", JOptionPane.ERROR_MESSAGE);
+        }
     }
 
     private static final String infoRegular = "源语言：%s 目标语言：%s 其他：%s";

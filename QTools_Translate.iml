@@ -7,10 +7,9 @@
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
-    <orderEntry type="library" name="develop_tool" level="project" />
     <orderEntry type="library" name="formdev.flatlaf" level="project" />
     <orderEntry type="library" name="tinylog.impl" level="project" />
     <orderEntry type="library" name="json-20210307" level="project" />
-    <orderEntry type="library" name="develop_tool (2)" level="project" />
+    <orderEntry type="library" name="develop_tool" level="project" />
   </component>
 </module>
