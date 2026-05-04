@@ -10,6 +10,7 @@ import java.awt.*;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.util.List;
@@ -28,7 +29,7 @@ public class Main extends QToolUnit {
 
     @Override
     protected String setVersion() {
-        return "1.1";
+        return "1.2";
     }
 
     @Override
@@ -170,6 +171,10 @@ public class Main extends QToolUnit {
 
     @Override
     public void showTool() {
+    }
+
+    @Override
+    public JDialog getToolDialog() {
         try {
             File file = new File(GetPath.getAppPath(GetPath.SOURCE_FILE_PATH), "inf/translate.inf");
 
@@ -185,17 +190,12 @@ public class Main extends QToolUnit {
             JDialog dialog = new JDialog();
             dialog.setTitle("翻译(使用小牛翻译API)");
             dialog.setLayout(new BorderLayout());
-            dialog.setAlwaysOnTop(true);
 
             initComponent(dialog);
 
-            dialog.setSize(500, 300);
-            dialog.setLocationRelativeTo(null);
-
-            dialog.setVisible(true);
-
-
-        } catch (Exception e) {
+            dialog.setPreferredSize(new Dimension(620, 420));
+            return dialog;
+        } catch (URISyntaxException | IOException e) {
             throw new RuntimeException(e);
         }
     }
@@ -240,8 +240,12 @@ public class Main extends QToolUnit {
 
         JTextArea srcTextArea = new JTextArea();
         srcTextArea.setLineWrap(true);
+        srcTextArea.setColumns(30);
+        srcTextArea.setRows(5);
         JTextArea transTextArea = new JTextArea();
         transTextArea.setLineWrap(true);
+        transTextArea.setColumns(30);
+        transTextArea.setRows(5);
         transTextArea.setEditable(false);
 
         JButton transButton = new JButton("翻译");
@@ -271,11 +275,15 @@ public class Main extends QToolUnit {
 
         textPanel.add(new JLabel("源文本"), gbc);
         gbc.gridy++;
-        textPanel.add(new JScrollPane(srcTextArea), gbc);
+        JScrollPane srcScrollPane = new JScrollPane(srcTextArea);
+        srcScrollPane.setPreferredSize(srcTextArea.getPreferredSize());
+        textPanel.add(srcScrollPane, gbc);
         gbc.gridy++;
         textPanel.add(new JLabel("翻译结果"), gbc);
         gbc.gridy++;
-        textPanel.add(new JScrollPane(transTextArea), gbc);
+        JScrollPane transScrollPane = new JScrollPane(transTextArea);
+        transScrollPane.setPreferredSize(transTextArea.getPreferredSize());
+        textPanel.add(transScrollPane, gbc);
         gbc.gridy++;
         textPanel.add(tips, gbc);
         gbc.gridy++;
@@ -283,6 +291,8 @@ public class Main extends QToolUnit {
         dialog.add(textPanel, BorderLayout.CENTER);
 
         dialog.add(transButton, BorderLayout.SOUTH);
+
+
     }
 
     private void translate(JDialog dialog, JTextArea srcTextArea, TreeMap<String, String> languageMap, JComboBox<String> fromComboBox, JComboBox<String> toComboBox, JTextArea transTextArea) {
@@ -314,4 +324,6 @@ public class Main extends QToolUnit {
     static void main() {
         new Main().showTool();
     }
+
+
 }
